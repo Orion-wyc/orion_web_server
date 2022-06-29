@@ -31,7 +31,7 @@ class Semaphore {
  private:
   std::mutex mutex_;
   std::condition_variable cv_;
-  unsigned long count_ = 0;
+  unsigned long count_;
 };
 
 }  // namespace webserver
