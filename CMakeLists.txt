@@ -12,6 +12,10 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_OUTPUT_DIR})
 # 指定C/C++头文件目录
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
+# 指定动态链接库
+# target_link_libraries(${PROJECT_NAME} -ldl)
+
+
 # 输出系统架构（x84-64）以及可执行文件的输出路径
 message("-- system arch: ${CMAKE_SYSTEM_PROCESSOR}")
 message("-- output path: ${PROJECT_OUTPUT_DIR} ")

@@ -15,7 +15,7 @@ namespace webserver {
 /* 通过互斥量mutex和条件变量condition_variable实现信号量Semaphore. */
 class Semaphore {
  public:
-  Semaphore(unsigned long cnt = 0) : count_(cnt){};
+  explicit Semaphore(unsigned long cnt = 0) : count_(cnt){};
   ~Semaphore(){};
 
   /* 禁止拷贝与赋值, 此处使用delete而非Uncopyable */
