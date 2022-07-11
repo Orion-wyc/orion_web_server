@@ -26,8 +26,6 @@ void TestMysqlConnection() {
   webserver::SqlConnRAII mysql_conn(&sql, webserver::SqlConnPool::Instance());
   assert(sql);
 
-  bool flag = false;
-  unsigned int j = 0;
   char order[256] = {0};
   MYSQL_FIELD *fields = nullptr;
   MYSQL_RES *res = nullptr;
@@ -43,11 +41,11 @@ void TestMysqlConnection() {
     return;
   }
   res = mysql_store_result(sql);
-  j = mysql_num_fields(res);
   fields = mysql_fetch_fields(res);
-
+  /* 输出查询结果 */
   MYSQL_ROW row;
   size_t num_fields = mysql_num_fields(res);
+  std::cout << num_fields << " records found!" << std::endl;
   while ((row = mysql_fetch_row(res))) {
     {
       unsigned long *lengths;
@@ -55,13 +53,9 @@ void TestMysqlConnection() {
       for (int i = 0; i < num_fields; i++) {
         printf("[%.*s] ", (int)lengths[i], row[i] ? row[i] : "NULL");
       }
-      printf("/n");
+      printf("\n");
     }
   }
-
-  /* 输出查询结果 */
-  std::cout << j << " records found!" << std::endl;
-
   mysql_free_result(res);
 }
 

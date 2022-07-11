@@ -13,4 +13,4 @@ all: $(OBJS)
 	$(CXX) $(CFLAGS) $(OBJS) -o $(PROJECT_OUTPUT_DIR)/$(TARGET)  -pthread -lmysqlclient -I $(PROJECT_INCLUDE_DIR)
 
 clean:
-	rm -rf ./bin/$(TARGET)
+	rm -rf $(PROJECT_OUTPUT_DIR)/$(TARGET)

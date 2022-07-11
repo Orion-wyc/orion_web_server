@@ -34,6 +34,7 @@ class BlockQueue {
   T &Back();
 
   bool Empty();
+  bool Full();
   size_t Size();
   size_t Capacity();
 
@@ -67,9 +68,10 @@ void BlockQueue<T>::DestroyQueue() {
     que_.clear();
     closed_ = true;
   }
-  /* 此处为何要唤起所有阻塞的进程 */
-  consumer_cv_.notify_all();
+  /* 此处要唤起所有阻塞的进程，此时closed_为true，
+     队列已清空，调用Pop(T&)返回false */
   producer_cv_.notify_all();
+  consumer_cv_.notify_all();
 }
 
 template <typename T>
@@ -116,6 +118,12 @@ template <typename T>
 bool BlockQueue<T>::Empty() {
   std::lock_guard<decltype(mtx_)> lock(mtx_);
   return que_.empty();
+}
+
+template <typename T>
+bool BlockQueue<T>::Full() {
+  std::lock_guard<decltype(mtx_)> lock(mtx_);
+  return que_.size() >= capacity_;
 }
 
 /* 队列是临界区资源，该操作应当是阻塞的 */

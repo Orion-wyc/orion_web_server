@@ -13,3 +13,5 @@
 *.exe
 /.vscode
 /build
+/3rdparty/*
+test/mem_leak.cpp
