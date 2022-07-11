@@ -60,13 +60,15 @@ void Logger::Initialize(const std::string &log_dir, int level,
 void Logger::FlushLogThread() { Logger::Instance()->AsyncWrite_(); }
 
 void Logger::WriteLog(int level, const char *fmt, ...) {
-  WriteDatetime();
-  WriteLogLevel(level);
-
   /* 读取参数列表，将日志内容写入buff_ */
   va_list vargs;
   {
     std::lock_guard<decltype(mtx_)> lock(mtx_);
+
+    /* 记录行时间和级别也需要加锁 */
+    WriteDatetime();
+    WriteLogLevel(level);
+    
     va_start(vargs, fmt);
     /* 这里日志内容长度不能好过4096字符 */
     int n =
