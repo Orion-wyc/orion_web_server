@@ -19,12 +19,34 @@ namespace webserver {
 
 class ThreadPool {
  public:
+  /* 之前没有定义成模板类导致链接时提示multiple definition of ...
+     解决方法：
+     （1) 定义成模板类，然后模板声明和定义写在一个头文件内；
+      (2) 声明+定义的写法，让所有的成员函数都在类内部，实现inline内联；
+      (3) Task类别显示指出，即本例的解决方案，头文件写声明和源文件写定义。
+  */
+  using Task = std::function<void()>;
+
   explicit ThreadPool(size_t n_threads);
 
   ~ThreadPool();
 
-  template <typename F>
-  void AddTask(F &&task);
+  /* 暂时设计为需要手动std::bind()仿函数,后期可改成如下：
+   * template <typename F, typename... Args>
+   */
+  void AddTask(Task &&task);
+
+  /* 拷贝构造函数，并且取消默认父类构造函数 */
+  ThreadPool(const ThreadPool &) = delete;
+
+  /* 拷贝构造函数，允许右值引用 */
+  ThreadPool(const ThreadPool &&) = delete;
+
+  /* 赋值操作 */
+  ThreadPool &operator=(const ThreadPool &) = delete;
+
+  /* 赋值操作 */
+  ThreadPool &operator=(const ThreadPool &&) = delete;
 
  private:
   /* Pool的成员closed和tasks需要加锁访问 */
@@ -32,66 +54,13 @@ class ThreadPool {
     bool closed;
     std::mutex mtx;
     std::condition_variable cv;
-    std::queue<std::function<void()>> tasks;
+    std::queue<Task> tasks;
     Pool(bool status = false) : closed(false) {}
   };
 
   std::shared_ptr<Pool> pool_;
   std::list<std::thread> workers_;
 };
-
-ThreadPool::ThreadPool(size_t n_threads)
-    : pool_(std::make_shared<Pool>(false)) {
-  for (size_t i = 0; i < n_threads; ++i) {
-    /* warning: lambda capture initializers only available
-     * with -std=c++14 or -std=gnu++14
-     * workers_.emplace_back([pool = pool_]() {
-     */
-    workers_.emplace_back([this]() {
-      std::shared_ptr<Pool> pool = this->pool_;
-      while (true) {
-        std::function<void()> task;
-        {
-          std::unique_lock<decltype(pool->mtx)> lock(pool->mtx);
-          pool->cv.wait(
-              lock, [pool]() { return pool->closed || !pool->tasks.empty(); });
-
-          if (pool->closed && pool->tasks.empty()) {
-            return;
-          }
-
-          task = std::move(pool->tasks.front());
-          pool->tasks.pop();
-        }
-        task();
-      }
-    });
-  }
-}
-
-ThreadPool::~ThreadPool() {
-  if (pool_) {
-    std::lock_guard<decltype(pool_->mtx)> lock(pool_->mtx);
-    pool_->closed = true;
-  }
-  pool_->cv.notify_all();
-
-  for (std::thread &worker : workers_) {
-    worker.join();
-  }
-}
-
-template <typename F>
-void ThreadPool::AddTask(F &&task) {
-  if (pool_->closed) {
-    throw std::runtime_error("add task into a closed thread pool");
-  }
-  {
-    std::lock_guard<decltype(pool_->mtx)> lock(pool_->mtx);
-    pool_->tasks.emplace(std::forward<F>(task));
-  }
-  pool_->cv.notify_one();
-}
 
 }  // namespace webserver
 

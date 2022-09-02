@@ -12,6 +12,7 @@ THIRDPARTY_DIR = $(PROJECT_ROOT)/3rdparty
 TARGET = test_threadpool
 OBJS = $(PROJECT_ROOT)/src/base/stringbuffer.cpp \
        $(PROJECT_ROOT)/src/utils/logger.cpp \
+			 $(PROJECT_ROOT)/src/pool/threadpool.cpp \
        $(PROJECT_ROOT)/test/test_threadpool/test_threadpool.cpp
 
 all: $(OBJS)

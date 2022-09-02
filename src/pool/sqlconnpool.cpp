@@ -5,6 +5,7 @@
  */
 
 #include "pool/sqlconnpool.h"
+#include "utils/logger.h"
 
 #include <cassert>
 
@@ -27,26 +28,27 @@ void SqlConnPool::Initialize(const char *host, int port, const char *user,
        同时, mysql_library_init()也被会调用*/
     sql = mysql_init(sql);
     if (!sql) {
-      // todo 这里需要补充日志信息
+      LOG_ERROR("Mysql init error.");
       assert(sql);
     }
 
     sql = mysql_real_connect(sql, host, user, pwd, db_name, port, nullptr, 0);
     if (!sql) {
-      // todo 这里需要补充日志信息
+      LOG_ERROR("MySql connect error.");
     }
     conn_que_.push(sql);
 
     /* 初始化信号量, 析构时需要释放psem_空间 */
     MAX_CONN_ = conn_size;
-    psem_ = new Semaphore(MAX_CONN_);
+    std::unique_ptr<Semaphore> tmp_psem(new Semaphore(MAX_CONN_));
+    psem_ = std::move(tmp_psem);
   }
 }
 
 MYSQL *SqlConnPool::AcquireConn() {
   MYSQL *sql = nullptr;
   if (conn_que_.empty()) {
-    // todo 这里需要补充日志信息
+    LOG_WARN("Mysel connection pool busy.");
     return nullptr;
   }
 
@@ -87,7 +89,6 @@ void SqlConnPool::DestroyPool() {
 
 SqlConnPool::~SqlConnPool() {
   DestroyPool();
-  delete psem_;
 }
 
 /* SqlConnRALL的定义, 从pool中获取一个sql连接 */

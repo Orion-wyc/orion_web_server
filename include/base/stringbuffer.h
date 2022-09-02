@@ -7,6 +7,9 @@
 #ifndef STRINGBUFFER_H_
 #define STRINGBUFFER_H_
 
+#include <sys/uio.h>  //readv
+#include <unistd.h>   // write
+
 #include <atomic>
 #include <cassert>
 #include <cstring>
@@ -50,15 +53,25 @@ class StringBuffer {
   /* 将Readable缓冲区的字符转化为std::string对象, 清空整个缓冲区 */
   std::string RetrieveAllToStr();
 
-  // 这里测试一下对应的重载函数，何种条件下会调用const重载
-  /* 获取Readable\Writable缓冲区的首部指针 */
+  /* http报文解析中需要使用的函数 */
+  void Retrieve(size_t len);
+  void RetrieveUntil(const char *end);
+  void RetrieveAll();
+
+  /* 获取Readable/Writable缓冲区的首部指针,
+     其中读指针为const类型，写指针可修改内容，
+     在http报文解析过程中，使用std::search
+     需要强制转换为 const char* 类型 */
   const char *ReadBeginPtr() const;
   char *WriteBeginPtr();
-  const char *WriteBeginPtr() const;
 
   void Append(const char *data, size_t len);
   void Append(const std::string &str);
   void Append(const StringBuffer &buff);
+
+  /* 关于fd和buffer的读写交互 */
+  ssize_t ReadFromFd(int fd, int *Errno);
+  ssize_t WriteToFd(int fd, int *Errno);
 
  private:
   std::vector<char> buffer_;

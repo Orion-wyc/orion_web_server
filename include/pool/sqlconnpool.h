@@ -49,7 +49,7 @@ class SqlConnPool {
 
   std::queue<MYSQL *> conn_que_;  //数据库连接池, 临界区
   std::mutex mtx_;                // 用于互斥访问临界区资源
-  Semaphore *psem_;  // 信号量(指针), 用于约束使用连接池的线程数量
+  std::unique_ptr<Semaphore> psem_;  // 信号量(指针), 用于约束使用连接池的线程数量
 };
 
 class SqlConnRAII {

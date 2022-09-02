@@ -42,15 +42,27 @@ std::string StringBuffer::RetrieveAllToStr() {
   return str;
 }
 
+void StringBuffer::Retrieve(size_t len) {
+  assert(len <= ReadableBytes());
+  read_pos_ += len;
+}
+
+void StringBuffer::RetrieveUntil(const char *end) {
+  assert(ReadBeginPtr() <= end);
+  Retrieve(end - ReadBeginPtr());
+}
+
+void StringBuffer::RetrieveAll() {
+  bzero(buffer_.data(), buffer_.size());
+  read_pos_ = 0;
+  write_pos_ = 0;
+}
+
 const char *StringBuffer::ReadBeginPtr() const {
   return BeginPtr_() + read_pos_;
 }
 
 char *StringBuffer::WriteBeginPtr() { return BeginPtr_() + write_pos_; }
-
-const char *StringBuffer::WriteBeginPtr() const {
-  return BeginPtr_() + write_pos_;
-}
 
 void StringBuffer::Append(const char *data, size_t len) {
   assert(data);
@@ -68,6 +80,39 @@ void StringBuffer::Append(const std::string &str) {
 
 void StringBuffer::Append(const StringBuffer &buff) {
   Append(buff.ReadBeginPtr(), buff.ReadableBytes());
+}
+
+ssize_t StringBuffer::ReadFromFd(int fd, int *saveErrno) {
+  char buff[65535];
+  struct iovec iov[2];
+  const size_t writable = PostWritableBytes();
+  /* 分散读， 保证数据全部读完 */
+  iov[0].iov_base = BeginPtr_() + write_pos_;
+  iov[0].iov_len = writable;
+  iov[1].iov_base = buff;
+  iov[1].iov_len = sizeof(buff);
+
+  const ssize_t len = readv(fd, iov, 2);
+  if (len < 0) {
+    *saveErrno = errno;
+  } else if (static_cast<size_t>(len) <= writable) {
+    write_pos_ += len;
+  } else {
+    write_pos_ = buffer_.size();
+    Append(buff, len - writable);
+  }
+  return len;
+}
+
+ssize_t StringBuffer::WriteToFd(int fd, int *saveErrno) {
+  size_t readSize = ReadableBytes();
+  ssize_t len = write(fd, ReadBeginPtr(), readSize);
+  if (len < 0) {
+    *saveErrno = errno;
+    return len;
+  }
+  read_pos_ += len;
+  return len;
 }
 
 /* ---------------------- 私有方法 ---------------------- */
