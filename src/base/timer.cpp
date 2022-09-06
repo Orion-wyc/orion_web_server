@@ -26,7 +26,6 @@ void MinHeapTimer::AddItem(int fd, int timeout, const Task& cb_func) {
       SiftUp_(idx);
     }
   }
-  LOG_INFO("timer fd=%d", fd);
 }
 
 void MinHeapTimer::UpdateItem(int fd, int timeout) {
@@ -56,7 +55,6 @@ int MinHeapTimer::GetNextTick() {
     // 理论上清除过期节点后不会是负数, 但是调用过程有额外开开销
     if (res < 0) res = 0;
   }
-  LOG_INFO("success timer! (%d, res=%d)", heap_.size(), res);
   return res;
 }
 
@@ -122,7 +120,6 @@ void MinHeapTimer::ManageStaleItem_() {
 
     item.cb_func();
     RemoveItem_(0);
-    LOG_DEBUG("success remove timer (heap=%d)", heap_.size());
   }
 }
 

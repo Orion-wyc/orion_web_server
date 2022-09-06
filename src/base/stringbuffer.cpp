@@ -86,7 +86,8 @@ ssize_t StringBuffer::ReadFromFd(int fd, int *saveErrno) {
   char buff[65535];
   struct iovec iov[2];
   const size_t writable = PostWritableBytes();
-  /* 分散读， 保证数据全部读完 */
+  /* 分散读， 保证数据全部读完, 由于 buff_ 尾部可写空间可能不足,
+     所以额外开辟 65535 Byte 的空间用于存储"溢出"数据*/
   iov[0].iov_base = BeginPtr_() + write_pos_;
   iov[0].iov_len = writable;
   iov[1].iov_base = buff;

@@ -18,6 +18,7 @@
 
 #include "base/blockqueue.h"
 #include "base/stringbuffer.h"
+#include "utils/converter.h"
 
 namespace webserver {
 

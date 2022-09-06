@@ -45,6 +45,7 @@ set(SOURCES
   ${PROJECT_SOURCE_DIR}/src/pool/threadpool.cpp
   ${PROJECT_SOURCE_DIR}/src/server/server.cpp
   ${PROJECT_SOURCE_DIR}/src/utils/logger.cpp
+  ${PROJECT_SOURCE_DIR}/src/utils/converter.cpp
   ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 

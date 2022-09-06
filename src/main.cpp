@@ -14,7 +14,7 @@ int main() {
   // todo 改成json配置文件, 修改配置不用重新编译
   webserver::WebServer server(
       /* 服务器配置: 服务器端口 ET模式 timeout(ms) 优雅退出 */
-      1317, 3, 6000, false,
+      1317, 1, 6000, false,
       /* Mysql配置: 数据库端口 用户名 密码 数据库名（默认使用user表）*/
       3306, "orion", "orion", "yourdb",
       /* 线程池配置: 连接池数量 线程池数量*/
