@@ -16,10 +16,4 @@ build
 test/mem_leak.cpp
 webbench-1.5
 
-configs
-include/http
-include/server
-src/http
-src/server
-src/timer
 website
