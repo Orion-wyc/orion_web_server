@@ -69,8 +69,9 @@ class StringBuffer {
   void Append(const std::string &str);
   void Append(const StringBuffer &buff);
 
-  /* 关于fd和buffer的读写交互 */
+  /* 从fd中读取数据写入buff_ */
   ssize_t ReadFromFd(int fd, int *Errno);
+  /* 从buff_中读取数据写入fd */
   ssize_t WriteToFd(int fd, int *Errno);
 
  private:

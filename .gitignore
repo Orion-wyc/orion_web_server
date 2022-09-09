@@ -13,13 +13,12 @@
 *.exe
 .vscode
 build
-3rdparty/*
 test/mem_leak.cpp
+webbench-1.5
 
 configs
 include/http
 include/server
-include/timer
 src/http
 src/server
 src/timer

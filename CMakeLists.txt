@@ -11,6 +11,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_OUTPUT_DIR})
 
 # 指定C/C++头文件目录
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(THIRD_PARTY_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/3rdparty)
 
 # 指定动态链接库
 # target_link_libraries(${PROJECT_NAME} -ldl)
@@ -30,6 +31,7 @@ include_directories(${MYSQL_INCLUDE_DIR})
 # 需要include的头文件
 include_directories(
   ${PROJECT_INCLUDE_DIR}
+  ${THIRD_PARTY_INCLUDE_DIR}
 )
 
 # 设置源文件代码
